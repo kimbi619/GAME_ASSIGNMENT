@@ -24,7 +24,7 @@ public:
 
     void cure();
 
-    void damage();
+    void damage(int damage);
 };
 
 #endif

@@ -11,7 +11,7 @@ class Monster : public Character {
 public:
     Monster(SDL_Renderer* game_state, std::string label, Position initial_state);
 
-    void sensePlayer();
+    void sensePlayer(int player_x, int player_y);
 
     void calculateExit();
 

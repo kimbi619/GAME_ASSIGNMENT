@@ -2,12 +2,16 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <random>
 
 // LOCAL 
-// #include "./Character/Character.hpp"
-#include "Room/Room.hpp"
+// #include "Room/Room.hpp"
+#include "header.hpp"
+#include "Room/Traproom/Traproom.hpp"
+#include "Room/Winroom/Winroom.hpp"
 #include "./Character/Monster/Monster.hpp"
 #include "./Character/Player/Player.hpp"
+#include "./Map/Mapp.hpp"
 
 // THIRD PARTY 
 #include <SDL2/SDL.h>
@@ -28,38 +32,31 @@ class GamePlay {
             setup_window();
         }
         
-        void draw_rooms(SDL_Renderer* renderer) {
-            for (int i = 0; i < GRID_SIZE; i++) {
-                SDL_RenderDrawLine(renderer, 0, CELL_SIZE *i, /*x1,y1*/
-                    Screen_size, CELL_SIZE *i /*x2,y2*/
-                );
-                SDL_RenderDrawLine(renderer, CELL_SIZE *i, 0, /*x1,y1*/
-                    CELL_SIZE *i, Screen_size /*x2,y2*/
-                );
-            }
-        }
+        
 
         int setup_window() {
 
-            if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-                printf("error initializing SDL: \n");
+            if (SDL_Init(SDL_INIT_VIDEO) < 0 || TTF_Init() < 0) {
+                std::cout << "Unable to import sdl dependencies" << std::endl;
                 return -1;
             }
             
             SDL_Init(SDL_INIT_VIDEO);
             TTF_Init();
-
             
             SDL_Window* window = SDL_CreateWindow("Group 8 Game",
                 SDL_WINDOWPOS_CENTERED,
                 SDL_WINDOWPOS_CENTERED,
-                Screen_size, 
-                Screen_size, 
+                1500, 
+                1500, 
                 SDL_WINDOW_SHOWN
             );
 
             SDL_Renderer* renderer = nullptr;
             renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+            
+            // Draw map for game 
+            Mapp mapp(renderer);
 
             // Set initial position of player
             Position player_initial_position;
@@ -72,9 +69,15 @@ class GamePlay {
             monster_initial_position.y_cord = 0;
 
             // Create instances of player and monster 
-            Monster monster(renderer, "M", monster_initial_position);
             Player player(renderer,  "P", player_initial_position);
+            Monster monster(renderer, "M", monster_initial_position);
+            
+            // Create a win room and define its initial position
+            Winroom winroom(renderer, "W");
+            winroom.setPosition(0, 0);
+            
 
+            // Creates vector of rooms using pointers to manage life time
             std::vector<std::shared_ptr<Room>> rooms;
             for (int i = 0; i < GRID_SIZE * GRID_SIZE + 1; i++)
             {
@@ -86,9 +89,7 @@ class GamePlay {
             int row = 0;
             for (int i = 0; i < GRID_SIZE * GRID_SIZE + 1; i++)
             {
-                
                 rooms[i]->setPosition(col, row);
-                
                 if( i % GRID_SIZE == 0 && i != 0){
                     row += 1;
                     col = -1;
@@ -96,8 +97,26 @@ class GamePlay {
                 col += 1;
             }
             
-            // rooms[0]->setPosition(2, 3);
-            // rooms[2]->setPosition(0, 4);
+
+            // Create instances of traproom
+            // A random ammount of trap rooms are created at random positions
+            std::vector<std::shared_ptr<Traproom>> traprooms;
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::uniform_int_distribution<int> distribution(3, 8);
+            int trap_rooms = distribution(gen);
+            for (int i = 0; i < trap_rooms; i++)
+            {
+                std::uniform_int_distribution<int> distribution(2, GRID_SIZE - 2);
+                int x_position = distribution(gen);
+                int y_position = distribution(gen);
+                int trap_room_damage = distribution(gen);
+                std::shared_ptr<Traproom> t_room = std::make_shared<Traproom>(renderer, trap_room_damage);
+                traprooms.push_back(t_room);
+                t_room->setPosition(x_position, y_position);
+            }
+            
+            
      
             
 
@@ -138,9 +157,10 @@ class GamePlay {
                             monster.monsterMove(&player);
                             player.setShifts(0);
                         }
-                        // if (monster.position.x_cord == player.position.x_cord && monster.position.y_cord == player.position.y_cord){
-                        //     printf("clash!!");
-                        // }
+                        if (monster.position.x_cord == player.position.x_cord && monster.position.y_cord == player.position.y_cord){
+                            std::cout << "player caught" << std::endl;
+                            // TODO: Player has been caught set health to 0 and alert game end;
+                        }
                     }
                     
                 }
@@ -150,10 +170,14 @@ class GamePlay {
 
                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 
+                // ##################################################################@
+                // ############## RENDER COMPONENTS TO THE WINDOW ####################
+                // ##################################################################@
+                mapp.draw_game_grid(renderer);
+                mapp.render(renderer);
 
-                draw_rooms(renderer);
-
-                // player.getCharacterPosition();    
+                winroom.fillRoom(renderer, {0, 0, 0}); 
+                winroom.render(renderer); 
 
                 player.render(renderer, {0, 0, 255});  
                 monster.render(renderer, {255, 0, 0});
@@ -161,11 +185,19 @@ class GamePlay {
                 for(auto& room: rooms) {
                     room->render(renderer);
                 }
-                
+
+                for(auto& traproom: traprooms) {
+                    traproom->render(renderer);
+                    traproom->fillRoom(renderer, { 0, 255, 255}, player);
+                }
+                // ############## RENDER COMPONENTS TO THE WINDOW ####################
+
+                // LOAD GAME;
                 SDL_RenderPresent(renderer);
 
 
             }
+
             SDL_DestroyWindow(window);
             SDL_Quit();
             

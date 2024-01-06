@@ -20,8 +20,8 @@ Character::Character(SDL_Renderer* game_state, std::string label, Position initi
 
     m_character.w = CELL_SIZE;
     m_character.h = CELL_SIZE;
-    m_character.x = initial_state.x_cord * CELL_SIZE;
-    m_character.y = initial_state.y_cord * CELL_SIZE;
+    m_character.x = (initial_state.x_cord + 1) * CELL_SIZE;
+    m_character.y = (initial_state.y_cord + 1) * CELL_SIZE;
 
 }
 
@@ -57,17 +57,17 @@ void Character::move(int x_shift, int y_shift) {
     this->position.x_cord += x_shift;
     this->position.y_cord += y_shift;
 
-    if (this->position.x_cord < 0){
-        this->position.x_cord = 0;
+    if (this->position.x_cord < 1){
+        this->position.x_cord = 1;
     }
-    if (this->position.y_cord < 0) {
-        this->position.y_cord = 0;
+    if (this->position.y_cord < 1) {
+        this->position.y_cord = 1;
     }
-    if (this->position.x_cord > GRID_SIZE - 1){
-        this->position.x_cord = GRID_SIZE - 1;
+    if (this->position.x_cord > GRID_SIZE ){
+        this->position.x_cord = GRID_SIZE;
     }
-    if (this->position.y_cord > GRID_SIZE - 1) {
-        this->position.y_cord = GRID_SIZE - 1;
+    if (this->position.y_cord > GRID_SIZE) {
+        this->position.y_cord = GRID_SIZE;
     }
     m_character.x = this->position.x_cord * CELL_SIZE;
     m_character.y = this->position.y_cord * CELL_SIZE;
