@@ -10,6 +10,7 @@
 #include "./GameManager/GameManager.hpp"
 #include "Room/Traproom/Traproom.hpp"
 #include "Room/Winroom/Winroom.hpp"
+#include "Room/PoisonRoom/Poisonroom.hpp"
 #include "./Character/Monster/Monster.hpp"
 #include "./Character/Player/Player.hpp"
 #include "./Map/Mapp.hpp"
@@ -78,6 +79,9 @@ class GamePlay {
             // Create a win room and define its initial position
             Winroom winroom(renderer, "W");
             winroom.setPosition(0, 0);
+            
+            Poisonroom poisonroom(renderer, "X");
+            poisonroom.setPosition(0, 5);
             
 
             // Creates vector of rooms using pointers to manage life time
@@ -187,6 +191,9 @@ class GamePlay {
 
                 winroom.fillRoom(renderer, {0, 0, 0}); 
                 winroom.render(renderer); 
+
+                // poisonroom.fillRoom(renderer, {100, 100, 0}); 
+                // poisonroom.render(renderer); 
 
                 player.render(renderer, {0, 0, 255});  
                 monster.render(renderer, {255, 0, 0});

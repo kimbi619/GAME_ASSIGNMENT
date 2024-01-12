@@ -27,7 +27,6 @@ GameManager::GameManager(SDL_Renderer* game_state) {
     scoreboard.w = g_wrapper.w - 20;
     scoreboard.h = CELL_SIZE;
 
-    TTF_Font* m_font = TTF_OpenFont("../fonts/Montserrat.ttf", 10);
 };
 
 GameManager::~GameManager() {
@@ -54,16 +53,14 @@ void GameManager::write(SDL_Renderer* game_state, std::string text, std::string 
 
     // SMALLER RECTANGLE
 
-    SDL_Surface* textSurface = TTF_RenderText_Solid(m_font, "welcome", {255, 0, 0});
-    scoreboard_texture = SDL_CreateTextureFromSurface(game_state, textSurface);
-    std::cout << scoreboard_texture << std::endl;
+    SDL_SetRenderDrawColor(game_state, 0, 0, 0, 255);
+    SDL_RenderDrawRect(game_state, &scoreboard);
+    SDL_RenderFillRect(game_state, &scoreboard);
+    // std::cout << scoreboard_texture << std::endl;
 
-    // SDL_SetRenderDrawColor(game_state, 0, 0, 0, 255);
-    // SDL_RenderDrawRect(game_state, &scoreboard);
-    // SDL_RenderFillRect(game_state, &scoreboard);
 
-    // SDL_RenderCopy(game_state, scoreboard_texture, NULL, &scoreboard);
-    // SDL_FreeSurface(textSurface);
+    SDL_RenderCopy(game_state, scoreboard_texture, NULL, &scoreboard);
+    // 
 
 
 }
