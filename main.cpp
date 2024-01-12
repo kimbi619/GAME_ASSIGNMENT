@@ -7,6 +7,7 @@
 // LOCAL 
 // #include "Room/Room.hpp"
 #include "header.hpp"
+#include "./GameManager/GameManager.hpp"
 #include "Room/Traproom/Traproom.hpp"
 #include "Room/Winroom/Winroom.hpp"
 #include "./Character/Monster/Monster.hpp"
@@ -57,6 +58,8 @@ class GamePlay {
             
             // Draw map for game 
             Mapp mapp(renderer);
+            GameManager game_manager(renderer);
+
 
             // Set initial position of player
             Position player_initial_position;
@@ -152,6 +155,10 @@ class GamePlay {
                     }
                     if (event.type == SDL_KEYUP)
                     {
+                        if(player.position.x_cord == winroom.position.x_cord && player.position.y_cord == winroom.position.y_cord){
+                            std::cout << winroom.position.x_cord << std::endl;
+                        }
+
                         if(player.shifts % 2 == 0 && player.shifts != 0)
                         {
                             monster.monsterMove(&player);
@@ -176,6 +183,8 @@ class GamePlay {
                 mapp.draw_game_grid(renderer);
                 mapp.render(renderer);
 
+                
+
                 winroom.fillRoom(renderer, {0, 0, 0}); 
                 winroom.render(renderer); 
 
@@ -191,6 +200,14 @@ class GamePlay {
                     traproom->fillRoom(renderer, { 0, 255, 255}, player);
                 }
                 // ############## RENDER COMPONENTS TO THE WINDOW ####################
+
+
+                // ################ CREATE GAME MANAGER #############################
+                std::string health = std::to_string(player.health);
+                game_manager.render(renderer);
+                game_manager.write(renderer, "Welcome", health);
+                
+
 
                 // LOAD GAME;
                 SDL_RenderPresent(renderer);

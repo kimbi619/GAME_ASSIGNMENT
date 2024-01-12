@@ -5,8 +5,8 @@
 #include <SDL2/SDL.h>
 
 Mapp::Mapp(SDL_Renderer* game_state) {
-    mapp.w = Screen_size + 2* CELL_SIZE;
-    mapp.h = Screen_size + 2* CELL_SIZE;
+    mapp.w = Screen_size;
+    mapp.h = Screen_size;
     mapp.x = CELL_SIZE;
     mapp.y = CELL_SIZE;
     this->position.x_cord = CELL_SIZE;
